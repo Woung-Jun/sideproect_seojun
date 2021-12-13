@@ -1,2 +1,7 @@
 # sideproect_seojun
-Side Project
+
+WorkSpace
+
+- Data Analysis
+- Machine Learning
+- Data Visualization
