@@ -1,6 +1,8 @@
 import type { EntryResult, Feedback, Habit, ParsedEntry } from "../types";
 
 export interface FeedbackInput {
+  /** 사용자가 쓴 원문. 멘탈 코치가 감정 표현을 읽는 데 쓴다. */
+  text: string;
   entry: Omit<EntryResult, "summary" | "feedback">;
   habits: Habit[];
 }

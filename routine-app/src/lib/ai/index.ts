@@ -1,10 +1,8 @@
+import { claudeProvider } from "./claude";
 import { mockProvider } from "./mock";
 import type { AiProvider } from "./provider";
 
-/**
- * 사용할 AI 공급자를 고른다. 실제 공급자(Claude 또는 Gemini)는
- * 결정 후 이 파일에 추가하고 AI_PROVIDER 환경변수로 선택한다.
- */
+/** ANTHROPIC_API_KEY가 설정돼 있으면 Claude, 없으면 목업을 쓴다. */
 export function getAiProvider(): AiProvider {
-  return mockProvider;
+  return process.env.ANTHROPIC_API_KEY ? claudeProvider : mockProvider;
 }

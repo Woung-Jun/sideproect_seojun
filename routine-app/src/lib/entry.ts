@@ -16,6 +16,6 @@ export async function processEntry(
       kcal: workoutKcal(w.type, w.minutes, w.intensity, weightKg),
     })),
   };
-  const { summary, feedback } = await ai.feedback({ entry, habits });
+  const { summary, feedback } = await ai.feedback({ text, entry, habits });
   return { ...entry, summary, feedback };
 }

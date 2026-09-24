@@ -1,6 +1,14 @@
 "use client";
 
-import { ArrowDownToLine, Coins, Landmark, Receipt, Trash2, type LucideIcon } from "lucide-react";
+import {
+  ArrowDownToLine,
+  Coins,
+  HandCoins,
+  Landmark,
+  Receipt,
+  Trash2,
+  type LucideIcon,
+} from "lucide-react";
 import { useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 
@@ -25,7 +33,13 @@ const KIND_META: Record<
   deposit: { label: "입금", action: "계좌에 입금", icon: Landmark, defaultAccount: "B계좌", tone: "bg-workout-soft text-workout" },
   spend: { label: "현금 지출", action: "현금 지출", icon: Receipt, tone: "bg-food-soft text-food" },
   opening: { label: "기초 잔액", action: "기초 잔액", icon: Coins, tone: "bg-money-soft text-money" },
+  check: { label: "잔액 확인", action: "지갑 돈 세어 보기", icon: HandCoins, tone: "bg-muted text-foreground" },
 };
+
+function diffText(diff: number) {
+  if (diff === 0) return "예상과 딱 맞아요";
+  return `예상보다 ${formatWon(Math.abs(diff))} ${diff > 0 ? "많아요" : "적어요"}`;
+}
 
 function todayIso() {
   const { year, month, day } = seoulToday();
@@ -71,6 +85,18 @@ export function WalletView() {
           <p className="mt-2 text-sm text-muted-foreground">
             시작할 때 지갑에 있던 돈부터 입력해 주세요.
           </p>
+        )}
+        {s.hasOpening && (
+          <div className="mt-4 flex items-center justify-between gap-3 border-t border-foreground/10 pt-3">
+            <p className="text-xs leading-snug text-muted-foreground" data-testid="wallet-check">
+              {s.lastCheck
+                ? `${formatDate(s.lastCheck.date)} 확인: 실제 ${formatWon(s.lastCheck.amount)} · ${diffText(s.lastCheck.diff ?? 0)}`
+                : "지갑의 돈을 세어 예상 잔액과 맞는지 확인해 보세요."}
+            </p>
+            <Button size="sm" variant="outline" className="shrink-0" onClick={() => setFormKind("check")}>
+              <HandCoins /> 세어 보기
+            </Button>
+          </div>
         )}
       </Card>
 
@@ -133,15 +159,28 @@ export function WalletView() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold">
-                      {r.kind === "withdraw" ? `${r.account} 인출` : r.kind === "deposit" ? `${r.account} 입금` : r.kind === "spend" ? (r.memo || "현금 지출") : "기초 잔액"}
+                      {r.kind === "withdraw"
+                        ? `${r.account} 인출`
+                        : r.kind === "deposit"
+                          ? `${r.account} 입금`
+                          : r.kind === "spend"
+                            ? r.memo || "현금 지출"
+                            : meta.label}
                     </p>
-                    <p className="text-xs text-muted-foreground">{formatDate(r.date)}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatDate(r.date)}
+                      {r.kind === "check" && ` · ${diffText(r.diff ?? 0)}`}
+                    </p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-semibold">
-                      {r.kind === "opening" ? formatWon(r.amount) : `${r.delta > 0 ? "+" : "−"}${formatWon(r.amount)}`}
+                      {r.kind === "opening" || r.kind === "check"
+                        ? formatWon(r.amount)
+                        : `${r.delta > 0 ? "+" : "−"}${formatWon(r.amount)}`}
                     </p>
-                    <p className="text-xs text-muted-foreground">잔액 {formatWon(r.balance)}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {r.kind === "check" ? "예상" : "잔액"} {formatWon(r.balance)}
+                    </p>
                   </div>
                   <button onClick={() => remove(r.id)} aria-label="기록 삭제" className="-mr-2 rounded-full p-2 text-muted-foreground hover:bg-muted">
                     <Trash2 className="size-3.5" />
@@ -198,7 +237,13 @@ function WalletForm({ kind, onSubmit }: { kind: WalletEventKind; onSubmit: (e: O
     >
       <Field label="날짜" type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
       <Field
-        label={kind === "opening" ? "그날 지갑에 있던 돈 (원)" : "금액 (원)"}
+        label={
+          kind === "opening"
+            ? "그날 지갑에 있던 돈 (원)"
+            : kind === "check"
+              ? "지금 지갑에 있는 돈 (원)"
+              : "금액 (원)"
+        }
         inputMode="numeric"
         placeholder="0"
         value={value ? value.toLocaleString("ko-KR") : ""}
