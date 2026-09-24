@@ -89,6 +89,12 @@ export const mockProvider: AiProvider = {
       expenses: parseExpenses(text),
       sleepHours: sleep ? Number(sleep[1]) : null,
       mood: /좋았|뿌듯|기분 좋/.test(text) ? 4 : /피곤|우울|짜증/.test(text) ? 2 : null,
+      learning: /듀오링고|영어 공부|영단어/.test(text)
+        ? {
+            tool: /듀오링고/.test(text) ? "듀오링고" : "영어 공부",
+            minutes: Number(text.match(/(?:듀오링고|영어)[^\d]{0,6}(\d+)\s*분/)?.[1]) || null,
+          }
+        : null,
       habitHits: habits
         .filter((h) =>
           /매달리기|철봉|턱걸이/.test(h.name)
@@ -122,6 +128,19 @@ export const mockProvider: AiProvider = {
         expert: "brain",
         message:
           "잠이 짧았어요. 수면이 부족하면 전전두엽의 억제력이 떨어져 야식과 충동 소비가 늘기 쉽습니다. 오늘은 일찍 눕는 것만 챙기세요.",
+      });
+    }
+    if (entry.mood !== null && entry.mood <= 2) {
+      feedback.push({
+        expert: "mental",
+        message:
+          "힘든 날이었네요. 그래도 기록은 남겼습니다. 오늘은 더 하려고 하지 말고 쉬는 것도 계획이라고 생각하세요.",
+      });
+    }
+    if (entry.learning) {
+      feedback.push({
+        expert: "english",
+        message: `${entry.learning.tool} 했네요. 매일 여는 것 자체가 실력이 됩니다. 원하면 오늘 한 일을 영어 한 문장으로 적어 보세요. 고쳐 드릴게요.`,
       });
     }
     if (feedback.length === 0 && entry.meals.length > 0) {

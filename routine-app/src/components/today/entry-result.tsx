@@ -1,4 +1,4 @@
-import { BedDouble, Dumbbell, Utensils, Wallet } from "lucide-react";
+import { BedDouble, Dumbbell, Languages, Utensils, Wallet } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -56,6 +56,10 @@ export function EntryResultView({ result }: { result: EntryResult }) {
           <Row key={i} icon={<Wallet />} tone="bg-money-soft text-money" title={e.item}
             sub={e.category} value={formatWon(e.amount)} />
         ))}
+        {result.learning && (
+          <Row icon={<Languages />} tone="bg-sleep-soft text-sleep" title={result.learning.tool}
+            sub="외국어 학습" value={result.learning.minutes ? `${result.learning.minutes}분` : "완료"} />
+        )}
         {result.sleepHours !== null && (
           <Row icon={<BedDouble />} tone="bg-sleep-soft text-sleep" title="수면"
             sub="기록에서 추출" value={`${result.sleepHours}시간`} />

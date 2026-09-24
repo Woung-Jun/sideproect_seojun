@@ -9,7 +9,13 @@ export type ExpenseCategory =
   | "고정비"
   | "기타";
 
-export type ExpertId = "nutritionist" | "trainer" | "finance" | "brain";
+export type ExpertId =
+  | "nutritionist"
+  | "trainer"
+  | "finance"
+  | "brain"
+  | "mental"
+  | "english";
 
 export interface Meal {
   name: string;
@@ -46,6 +52,8 @@ export interface ParsedEntry {
   expenses: Expense[];
   sleepHours: number | null;
   mood: 1 | 2 | 3 | 4 | 5 | null;
+  /** 외국어 학습 기록. 듀오링고는 연동 API가 없어 말로 남긴 기록에서 뽑는다. */
+  learning: { tool: string; minutes: number | null } | null;
   habitHits: string[];
 }
 
